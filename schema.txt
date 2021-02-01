@@ -1,0 +1,46 @@
+--schema setup
+psql -h postgres
+create schema projectyolo;
+set search_path to projectyolo;
+
+create table annonceur(
+	id_util BIGSERIAL PRIMARY KEY,
+	prenom varchar(30) not null,
+	nom varchar(30) not null,
+	email varchar(60) unique not null,
+	code_postal varchar(10) not null, 
+	num_telephone varchar(20) not null
+);
+
+create table categorie(
+	id_cat BIGSERIAL PRIMARY KEY,
+	name varchar(256) unique not null	
+);
+
+create table product(
+	id_prod BIGSERIAL PRIMARY KEY,
+	titre varchar(256) not null,
+	description varchar(25600) not null,
+	prix money not null,
+	vendu_status boolean default false,
+	id_cat bigserial not null references categorie(id_cat), id_util bigserial not null references annonceur(id_util) on delete cascade on update cascade);
+
+create table admin(
+	id_emp BIGSERIAL PRIMARY KEY,
+	prenom varchar(30) not null,
+	nom varchar(30) not null,
+	date_embauche date not null
+);
+
+
+create table modification_prix(id_mod BIGSERIAL PRIMARY KEY, id_prod bigserial not null references product(id_prod) on delete cascade on update cascade, id_emp bigserial not null references admin(id_emp) on delete cascade on update cascade, new_price money not null, accepter boolean, date_modif date not null, temp_modif time not null);
+
+--Fake data generer avec: http://www.generatedata.com/
+
+--Grants
+GRANT CONNECT ON DATABASE baydounn TO baydounn_app;
+GRANT USAGE ON SCHEMA projectyolo TO baydounn_app;
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA projectyolo TO baydounn_app;
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA projectyolo TO baydounn_app;
+GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA projectyolo TO baydounn_app;
+
